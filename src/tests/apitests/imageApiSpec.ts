@@ -30,12 +30,12 @@ describe("GET /image/:name", () => {
   it("returns 404 when image does not exist and does not hit cache", async () => {
     const findSpy = spyOn(
       findOriginalImageModule,
-      "findOriginalImage"
+      "findOriginalImage",
     ).and.rejectWith(new Error("Original image not found for 'nope.jpg'"));
 
     const cacheSpy = spyOn(
       cacheHelper,
-      "getOrSetCachedResizedImage"
+      "getOrSetCachedResizedImage",
     ).and.callThrough();
 
     const res = await request(app).get("/image/nope.jpg");
@@ -50,7 +50,7 @@ describe("GET /image/:name", () => {
     const originalPath = "/fake/path/fjord.jpg";
 
     spyOn(findOriginalImageModule, "findOriginalImage").and.resolveTo(
-      originalPath
+      originalPath,
     );
 
     spyOn(dimHelper, "getExistingImageDimensions").and.resolveTo({
@@ -61,11 +61,11 @@ describe("GET /image/:name", () => {
     const fakeBuffer = Buffer.from("fake-resized-image");
     const cacheSpy = spyOn(
       cacheHelper,
-      "getOrSetCachedResizedImage"
+      "getOrSetCachedResizedImage",
     ).and.resolveTo(fakeBuffer);
 
     const res = await request(app).get(
-      "/image/fjord.jpg?width=300&height=200&format=webp"
+      "/image/fjord.jpg?width=300&height=200&format=webp",
     );
 
     expect(cacheSpy).toHaveBeenCalledWith({
@@ -84,7 +84,7 @@ describe("GET /image/:name", () => {
     const originalPath = "/fake/path/fjord.jpg";
 
     spyOn(findOriginalImageModule, "findOriginalImage").and.resolveTo(
-      originalPath
+      originalPath,
     );
 
     spyOn(dimHelper, "getExistingImageDimensions").and.resolveTo({
@@ -95,11 +95,11 @@ describe("GET /image/:name", () => {
     const fakeBuffer = Buffer.from("fake-jpeg-image");
     const cacheSpy = spyOn(
       cacheHelper,
-      "getOrSetCachedResizedImage"
+      "getOrSetCachedResizedImage",
     ).and.resolveTo(fakeBuffer);
 
     const res = await request(app).get(
-      "/image/fjord.jpg?width=500&height=500&format=jpg"
+      "/image/fjord.jpg?width=500&height=500&format=jpg",
     );
 
     expect(cacheSpy).toHaveBeenCalledWith({
@@ -116,7 +116,7 @@ describe("GET /image/:name", () => {
 
   it("returns 500 when an unexpected error happens", async () => {
     spyOn(findOriginalImageModule, "findOriginalImage").and.rejectWith(
-      new Error("Unexpected boom")
+      new Error("Unexpected boom"),
     );
 
     const res = await request(app).get("/image/fjord.jpg");

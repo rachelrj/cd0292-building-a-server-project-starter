@@ -1,7 +1,7 @@
 import sharp from "sharp";
 
 export async function getExistingImageDimensions(
-  filePath: string
+  filePath: string,
 ): Promise<{ width: number; height: number }> {
   const metadata = await sharp(filePath).metadata();
 

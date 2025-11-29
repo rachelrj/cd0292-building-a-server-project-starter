@@ -7,7 +7,7 @@ describe("findOriginalImages", () => {
     const cacheSpy = spyOn(cacheHelper, "getOrSetCachedResizedImage");
 
     const response = await request(app).get(
-      "/image/this-image-does-not-exist.jpg"
+      "/image/this-image-does-not-exist.jpg",
     );
 
     expect(response.status).toBe(404);

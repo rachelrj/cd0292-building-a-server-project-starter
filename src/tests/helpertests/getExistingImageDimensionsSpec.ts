@@ -9,7 +9,7 @@ describe("getExistingImageDimensions", () => {
     "..",
     "..",
     "images",
-    "fjord.jpg"
+    "fjord.jpg",
   );
   const invalidImage = path.join(__dirname, "nonexistent.jpg");
 
@@ -24,7 +24,7 @@ describe("getExistingImageDimensions", () => {
 
   it("throws an error if the image file does not exist", async () => {
     await expectAsync(
-      getExistingImageDimensions(invalidImage)
+      getExistingImageDimensions(invalidImage),
     ).toBeRejectedWithError(/Input file is missing/i);
   });
 
@@ -33,7 +33,7 @@ describe("getExistingImageDimensions", () => {
     await fs.writeFile(dummyFile, "not an image");
 
     await expectAsync(
-      getExistingImageDimensions(dummyFile)
+      getExistingImageDimensions(dummyFile),
     ).toBeRejectedWithError(/unsupported image format/i);
 
     await fs.unlink(dummyFile);

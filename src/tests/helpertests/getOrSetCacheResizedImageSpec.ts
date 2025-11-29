@@ -1,17 +1,12 @@
 import path from "path";
+import sharp from "sharp";
 import { getOrSetCachedResizedImage } from "../../helpers/getOrSetInCacheResizedImage";
 import { imageCache } from "../../cache/imageCache";
 import * as imageResizer from "../../services/imageResizer";
 import { ImageFormatSharp } from "../../types/imageTypes";
 
 describe("getOrSetCachedResizedImage", () => {
-  const DUMMY_IMAGE_PATH = path.join(
-    __dirname,
-    "..",
-    "..",
-    "images",
-    "fjord.jpg"
-  );
+  const DUMMY_IMAGE_PATH = path.join(process.cwd(), "images", "fjord.jpg");
   const width = 200;
   const height = 200;
   const format: ImageFormatSharp = "jpeg";
@@ -27,7 +22,7 @@ describe("getOrSetCachedResizedImage", () => {
       async () =>
         ({
           toBuffer: async () => fakeBuffer,
-        }) as any
+        }) as unknown as sharp.Sharp,
     );
 
     const result = await getOrSetCachedResizedImage({
@@ -42,7 +37,7 @@ describe("getOrSetCachedResizedImage", () => {
       DUMMY_IMAGE_PATH,
       width,
       height,
-      format
+      format,
     );
 
     expect(result).toBe(fakeBuffer);
@@ -59,7 +54,7 @@ describe("getOrSetCachedResizedImage", () => {
       async () =>
         ({
           toBuffer: async () => fakeBuffer,
-        }) as any
+        }) as unknown as sharp.Sharp,
     );
 
     const firstResult = await getOrSetCachedResizedImage({
@@ -77,7 +72,6 @@ describe("getOrSetCachedResizedImage", () => {
     });
 
     expect(resizeSpy).toHaveBeenCalledTimes(1);
-
     expect(firstResult).toBe(fakeBuffer);
     expect(secondResult).toBe(fakeBuffer);
   });

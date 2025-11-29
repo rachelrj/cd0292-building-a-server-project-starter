@@ -10,7 +10,7 @@ interface GetOrSetOptions {
 }
 
 export async function getOrSetCachedResizedImage(
-  options: GetOrSetOptions
+  options: GetOrSetOptions,
 ): Promise<Buffer> {
   const { originalPath, width, height, format } = options;
 
@@ -25,7 +25,7 @@ export async function getOrSetCachedResizedImage(
     originalPath,
     width,
     height,
-    format
+    format,
   );
 
   const buffer = await sharpInstance.toBuffer();

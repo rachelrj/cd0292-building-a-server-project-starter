@@ -12,11 +12,11 @@ router.get(
   async (
     req: Request<
       { name: string },
-      {},
-      {},
+      unknown,
+      unknown,
       { width?: string; height?: string; format?: string }
     >,
-    res: Response
+    res: Response,
   ) => {
     try {
       const { name } = req.params;
@@ -83,7 +83,7 @@ router.get(
 
       return res.status(500).json({ error: "Error resizing image" });
     }
-  }
+  },
 );
 
 export default router;

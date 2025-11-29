@@ -4,7 +4,7 @@ import { IMAGE_FORMATS_NATURAL, ImageFormatNatural } from "../types/imageTypes";
 
 export async function findOriginalImage(
   name: string,
-  imagesDir: string
+  imagesDir: string,
 ): Promise<string> {
   const extWithDot = path.extname(name);
   const base = path.basename(name, extWithDot);
@@ -14,7 +14,7 @@ export async function findOriginalImage(
   if (extWithDot) {
     const ext = extWithDot.slice(1).toLowerCase();
     const isSupported = IMAGE_FORMATS_NATURAL.includes(
-      ext as ImageFormatNatural
+      ext as ImageFormatNatural,
     );
 
     if (isSupported) {

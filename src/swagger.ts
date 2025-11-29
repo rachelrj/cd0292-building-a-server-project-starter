@@ -10,7 +10,7 @@ export function setupSwagger(app: Express) {
     "..",
     "src",
     "swaggerDocs",
-    "image-api.yaml"
+    "image-api.yaml",
   );
 
   const fileContents = fs.readFileSync(filePath, "utf8");

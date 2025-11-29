@@ -4,7 +4,7 @@ export async function resizeAndConvert(
   inputPath: string,
   width: number,
   height: number,
-  format?: "jpeg" | "png" | "webp" | "avif"
+  format?: "jpeg" | "png" | "webp" | "avif",
 ): Promise<Sharp> {
   let img = sharp(inputPath).resize({
     width,

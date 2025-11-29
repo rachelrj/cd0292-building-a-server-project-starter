@@ -1,4 +1,7 @@
-import { isImageFormat, allowedFormats } from "../../helpers/validateImageFormat";
+import {
+  isImageFormat,
+  allowedFormats,
+} from "../../helpers/validateImageFormat";
 
 describe("isImageFormat", () => {
   it("returns true for all allowed formats", () => {
