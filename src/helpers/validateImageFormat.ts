@@ -1,9 +1,10 @@
-import { ImageFormat } from "../types/imageTypes";
+import { ImageFormatNatural } from "../types/imageTypes";
 
-export const allowedFormats = ["jpeg", "png", "webp", "avif"] as const;
+export const allowedFormats = ["jpeg", "jpg", "png", "webp", "avif"] as const;
 
-export function isImageFormat(value: unknown): value is ImageFormat {
+export function isImageFormat(value: unknown): value is ImageFormatNatural {
   return (
-    typeof value === "string" && allowedFormats.includes(value as ImageFormat)
+    typeof value === "string" &&
+    allowedFormats.includes(value as ImageFormatNatural)
   );
 }

@@ -1,11 +1,9 @@
 import { Router, Request, Response } from "express";
-import fs from "fs/promises";
 import path from "path";
-import { ResizedImage, ImageFormat } from "../types/imageTypes";
-import { resizeAndConvert } from "../services/imageResizer";
-import { isImageFormat } from "../helpers/validateImageFormat";
 import { getExistingImageDimensions } from "../helpers/getExistingImageDimensions";
-import { Sharp } from "sharp";
+import { findOriginalImage } from "../helpers/findOriginalImage";
+import { getOrSetCachedResizedImage } from "../helpers/getOrSetInCacheResizedImage";
+import { normalizeFormat } from "../helpers/normalizeFormat";
 
 const router = Router();
 
@@ -16,48 +14,65 @@ router.get(
       { name: string },
       {},
       {},
-      { width?: number; height?: number; format?: string }
+      { width?: string; height?: string; format?: string }
     >,
     res: Response
   ) => {
     try {
       const { name } = req.params;
+      const IMAGES_DIR = path.join(__dirname, "..", "..", "images");
+
+      const originalPath = await findOriginalImage(name, IMAGES_DIR);
+
+      const { width: origW, height: origH } =
+        await getExistingImageDimensions(originalPath);
 
       let { width, height, format: formatRaw } = req.query;
 
-      const IMAGES_DIR = path.join(__dirname, "..", "..", "images");
-      const originalPath = path.join(IMAGES_DIR, name);
+      let widthNum = width ? Number(width) : undefined;
+      let heightNum = height ? Number(height) : undefined;
 
-      try {
-        await fs.access(originalPath);
-      } catch {
-        return res
-          .status(404)
-          .json({ error: `Image '${name}' does not exist in /images folder` });
+      if (widthNum !== undefined && Number.isNaN(widthNum)) {
+        return res.status(400).json({ error: "Width must be a number" });
       }
 
-      if (height == null || width == null) {
-        const { height: origH, width: origW } =
-          await getExistingImageDimensions(originalPath);
-
-        height = height ?? origH;
-        width = width ?? origW;
+      if (heightNum !== undefined && Number.isNaN(heightNum)) {
+        return res.status(400).json({ error: "Height must be a number" });
       }
 
-      const format = isImageFormat(formatRaw)
-        ? (formatRaw as ImageFormat)
-        : undefined;
+      widthNum = widthNum ?? origW;
+      heightNum = heightNum ?? origH;
 
-      const resized: Sharp = await resizeAndConvert(
+      const originalExt = normalizeFormat(path.extname(originalPath).slice(1));
+
+      const requestedFormat = formatRaw
+        ? normalizeFormat(formatRaw)
+        : originalExt;
+
+      if (
+        widthNum === origW &&
+        heightNum === origH &&
+        requestedFormat === originalExt
+      ) {
+        res.setHeader("Content-Type", `image/${originalExt}`);
+        return res.sendFile(originalPath, (err) => {
+          if (err) {
+            console.error("Error sending original image:", err);
+            if (!res.headersSent) {
+              res.status(500).json({ error: "Error sending original image" });
+            }
+          }
+        });
+      }
+
+      const buffer = await getOrSetCachedResizedImage({
         originalPath,
-        width,
-        height,
-        format
-      );
+        width: widthNum,
+        height: heightNum,
+        format: requestedFormat,
+      });
 
-      const buffer = await resized.toBuffer();
-
-      res.setHeader("Content-Type", `image/${format ?? "png"}`);
+      res.setHeader("Content-Type", `image/${requestedFormat}`);
       return res.send(buffer);
     } catch (err: unknown) {
       console.error(err);
