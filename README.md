@@ -55,7 +55,44 @@ Feel free to attempt to create this project based on the overview and rubric spe
 
 Although not a requirement, we recommend using Git from the very beginning if you choose to build on your local environment or use the provided workspace. Make sure to commit often and to use well-formatted commit messages.
 
-## 📘 API Documentation (Swagger UI)
+## Caching Behavior
+
+This project uses an **in-memory LRU cache** (via the `lru-cache` package).  
+Cached images are **not saved to disk**, and no `/cache` folder is required.
+
+Each resized or converted image is stored as a `Buffer` inside the running
+process and keyed by:
+
+{originalPath}:{width}x{height}:{format}
+
+Because caching is memory-based:
+
+- Cached images are extremely fast to return
+- Cache entries are automatically evicted based on size limits
+- All cached items are cleared when the server restarts
+- No folders or disk writes are involved
+
+### Verifying Caching Behavior
+
+This project includes automated tests that confirm the caching system works correctly.  
+Because the cache is implemented entirely in memory using **lru-cache**, you won't see any files written to a `/cache` directory. Instead, the tests validate caching by checking how many times the image-processing function is actually called.
+
+Specifically:
+
+- On the **first request**, the image is processed through Sharp, and the result is stored in the in-memory cache.
+- On the **second request with identical parameters**, the cached Buffer is returned instantly — **without calling Sharp again**.
+
+The test suite verifies this by:
+
+1. **Spying on `resizeAndConvert`** (the Sharp wrapper function)
+2. Making two identical calls to `getOrSetCachedResizedImage`
+3. Asserting that:
+   - The first call produces a cache miss and calls Sharp once
+   - The second call produces a cache hit and does **not** call Sharp again
+
+Because these tests run automatically using Jasmine, you can rely on them to confirm that caching is functioning exactly as intended. The behavior is fully covered even though the cache exists only in memory and not on disk.
+
+## API Documentation (Swagger UI)
 
 > _Student Note:_  
 > To make the API easier to explore, understand, and test, I added interactive **Swagger UI documentation** to this project.
@@ -73,6 +110,130 @@ The Swagger page includes:
 - The ability to visually test the API directly in the browser
 
 The documentation is generated from an OpenAPI YAML file.
+
+## API Reference
+
+This section mirrors the OpenAPI (Swagger) specification for the Image Resizer API in Markdown.
+
+---
+
+### General Info
+
+- **Title:** Image Resizer API
+- **Version:** 1.0.0
+- **Description:** Simple health check and image resize/format conversion service.
+- **Server (local dev):**
+  - `http://localhost:3000`
+
+---
+
+##### `GET /health`
+
+**Summary:** Health check  
+**Description:** Returns basic service health status.
+
+##### Request
+
+- **Method:** `GET`
+- **URL:** `http://localhost:3000/health`
+- **Path parameters:** None
+- **Query parameters:** None
+- **Request body:** None
+
+##### Responses
+
+###### `200 OK`
+
+- **Description:** Service is healthy.
+- **Content-Type:** `application/json`
+- **Schema:** `HealthResponse`
+
+Example:
+
+```json
+{
+  "status": "ok"
+}
+```
+
+#### GET `/image/{name}`
+
+##### 📌 Summary
+
+Retrieve an image — optionally **resized** or **converted**.
+
+##### 📄 Description
+
+This endpoint returns an image by filename. It supports:
+
+- Resizing via `width` and/or `height`
+- Format conversion via `format`
+- Automatic passthrough of the **original file** if no transformation is needed
+- Requests **with or without** file extensions
+
+---
+
+##### 🔗 Request
+
+#### **Method:** `GET`
+
+#### **URL:**
+
+---
+
+#### 🔸 Path Parameters
+
+| Name   | Type   | Required | Description                               | Example   |
+| ------ | ------ | -------- | ----------------------------------------- | --------- |
+| `name` | string | yes      | Image filename, with or without extension | `cat.jpg` |
+
+---
+
+#### 🔸 Query Parameters
+
+| Name     | Type    | Required | Description                        | Constraints                                                                 | Example |
+| -------- | ------- | -------- | ---------------------------------- | --------------------------------------------------------------------------- | ------- |
+| `width`  | integer | no       | Desired width in pixels            | `>= 1`                                                                      | `800`   |
+| `height` | integer | no       | Desired height in pixels           | `>= 1`                                                                      | `600`   |
+| `format` | string  | no       | Output format (resizes + converts) | One of: `jpeg`, `png`, `webp`, `avif`, `jpg` (`jpg` → normalized to `jpeg`) | `webp`  |
+
+#### Responses
+
+##### `200 OK`
+
+Returns the image in binary form.
+
+##### `400 Bad Request`
+
+Description: Invalid query parameters (e.g. non-numeric width/height).
+
+```
+{
+  "error": "Width must be a number"
+}
+```
+
+##### `404 Not Found`
+
+Description: Image not found.
+
+```
+{
+  "error": "Original image not found for 'cat.jpg'"
+}
+```
+
+##### `500 Internal Server Error`
+
+Description: Server error while resizing/serving image.
+
+```
+{
+  "error": "Error resizing image"
+}
+```
+
+---
 
 ## License
 
