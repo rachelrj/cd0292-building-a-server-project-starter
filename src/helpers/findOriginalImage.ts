@@ -31,7 +31,6 @@ export async function findOriginalImage(
   for (const file of candidates) {
     const fullPath = path.join(imagesDir, file);
     attempted.push(fullPath);
-    console.log(fullPath);
     try {
       await fs.access(fullPath);
       return fullPath;

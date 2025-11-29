@@ -57,7 +57,6 @@ router.get(
         res.setHeader("Content-Type", `image/${originalExt}`);
         return res.sendFile(originalPath, (err) => {
           if (err) {
-            console.error("Error sending original image:", err);
             if (!res.headersSent) {
               res.status(500).json({ error: "Error sending original image" });
             }
@@ -75,8 +74,6 @@ router.get(
       res.setHeader("Content-Type", `image/${requestedFormat}`);
       return res.send(buffer);
     } catch (err: unknown) {
-      console.error(err);
-
       if (
         err instanceof Error &&
         err.message.includes("Original image not found")

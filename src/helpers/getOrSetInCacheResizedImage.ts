@@ -18,11 +18,8 @@ export async function getOrSetCachedResizedImage(
 
   const cached = imageCache.get(cacheKey);
   if (cached) {
-    console.log("📦 Cache HIT:", cacheKey);
     return cached;
   }
-
-  console.log("🛠 Cache MISS:", cacheKey);
 
   const sharpInstance = await resizeAndConvert(
     originalPath,
