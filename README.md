@@ -26,7 +26,6 @@ Feel free to attempt to create this project based on the overview and rubric spe
    - How do you plan to name your routes? Utilities?
 3. **Configure your middleware and dependencies.**
    You have quite a few dependencies that all need to work together. Sometimes it's easiest to write some simple js functions to test that all of your dependencies work together before you begin adding any functionality.
-
    - Does your TypeScript compile?
    - Do your Eslint and Prettier scripts work?
    - Are you able to write and pass
@@ -55,6 +54,25 @@ Feel free to attempt to create this project based on the overview and rubric spe
 ## Version Control
 
 Although not a requirement, we recommend using Git from the very beginning if you choose to build on your local environment or use the provided workspace. Make sure to commit often and to use well-formatted commit messages.
+
+## 📘 API Documentation (Swagger UI)
+
+> _Student Note:_  
+> To make the API easier to explore, understand, and test, I added interactive **Swagger UI documentation** to this project.
+
+Once the server is running, you can access the API docs at:
+
+👉 **http://localhost:3000/docs**
+
+The Swagger page includes:
+
+- A **Health Check** endpoint (`GET /health`)
+- The full **Image Processing Endpoint** (`GET /image/{name}`)
+- All supported query parameters (`width`, `height`, `format`)
+- Example success and error responses
+- The ability to visually test the API directly in the browser
+
+The documentation is generated from an OpenAPI YAML file.
 
 ## License
 
